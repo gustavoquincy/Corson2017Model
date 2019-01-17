@@ -1,11 +1,10 @@
-# A Chaste based repository for simulating Delta Notch signaling based on the vertex model
+# A Chaste based repository for simulating celluar Delta Notch signaling based on the vertex model
 
 Gereral information about Chaste cell-based branch can be found [here](https://www.cs.ox.ac.uk/chaste/cell_based_index.html):
-<img src="http://yuml.me/diagram/scruffy/class/[User]" >
 
-$a$
-$$\tau\frac{du_i}{dt}=f(u_i, s_i)-u_i+\ita_i(t)$$
-**Note - you probably *don't* want to fork this on Github!**
+`src` folder includes the codes for simulating Equations 4-12 given in this [paper](http://science.sciencemag.org/content/356/6337/eaai7407/tab-pdf)
+
+
 If you do it will stay linked to this repository, and then you won't be allowed to fork any more similar projects!
 
 Instead, select `Import repository` from the `+` menu at the top right of this page whilst logged in to your GitHub account.
