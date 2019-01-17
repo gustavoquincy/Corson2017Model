@@ -2,7 +2,7 @@
 
 Gereral information about Chaste cell-based branch can be found [here](https://www.cs.ox.ac.uk/chaste/cell_based_index.html):
 
-`src` folder includes the codes for simulating Equations 4-12 given in this [paper](http://science.sciencemag.org/content/356/6337/eaai7407/tab-pdf)
+`src` folder includes the codes for simulating **Equations 4-12** given in this [paper](http://science.sciencemag.org/content/356/6337/eaai7407/tab-pdf)
 
 
 If you do it will stay linked to this repository, and then you won't be allowed to fork any more similar projects!
