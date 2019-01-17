@@ -1,6 +1,8 @@
 # A Chaste based repository for simulating Delta Notch signaling based on the vertex model
 
 Gereral information about Chaste cell-based branch can be found [here](https://www.cs.ox.ac.uk/chaste/cell_based_index.html):
+<img src="http://yuml.me/diagram/scruffy/class/[User]" >
+
 $a$
 $$\tau\frac{du_i}{dt}=f(u_i, s_i)-u_i+\ita_i(t)$$
 **Note - you probably *don't* want to fork this on Github!**
