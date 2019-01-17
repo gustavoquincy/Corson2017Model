@@ -1,4 +1,7 @@
-# A template user project for use with Chaste.
+# A Chaste based repository for simulating Delta Notch signaling based on the vertex model
+
+Gereral information about Chaste cell-based branch can be found here:
+https://www.cs.ox.ac.uk/chaste/cell_based_index.html
 
 **Note - you probably *don't* want to fork this on Github!**
 If you do it will stay linked to this repository, and then you won't be allowed to fork any more similar projects!
