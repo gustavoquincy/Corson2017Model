@@ -1,4 +1,4 @@
-# A Chaste based user repository for simulating celluar Delta Notch signaling based on the vertex model
+# A Chaste based user repository for simulating cellular delta notch signaling based on the vertex model
 
 - gereral information about Chaste cell-based branch can be found [here](https://www.cs.ox.ac.uk/chaste/cell_based_index.html)
 
