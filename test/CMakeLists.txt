@@ -35,4 +35,7 @@
 
 # This allows us to build tests of the project.
 # Simply set the project name in the line below.
-chaste_do_test_project(template_project)
+
+find_package(Chaste COMPONENTS cell_based crypt)
+
+chaste_do_test_project(Corson2017Model)
