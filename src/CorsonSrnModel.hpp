@@ -2,8 +2,8 @@
 // Created by gq on 1/13/19.
 //
 
-#ifndef CHASTE_CORSONSRNMODEL_HPP
-#define CHASTE_CORSONSRNMODEL_HPP
+#ifndef CORSONSRNMODEL_HPP_
+#define CORSONSRNMODEL_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -48,4 +48,4 @@ CHASTE_CLASS_EXPORT(CorsonSrnModel)
 #include "CellCycleModelOdeSolverExportWrapper.hpp"
 EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(CorsonSrnModel)
 
-#endif //CHASTE_CORSONSRNMODEL_HPP
+#endif //CORSONSRNMODEL_HPP_

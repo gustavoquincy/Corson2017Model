@@ -16,7 +16,7 @@ CorsonSrnModel::CorsonSrnModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver
         mpOdeSolver = CellCycleModelOdeSolver<CorsonSrnModel, RungeKutta4IvpOdeSolver>::Instance();
         mpOdeSolver->Initialise();
         SetDt(0.001);
-#endif
+#endif //CHASTE_CVODE
     }
     assert(mpOdeSolver->IsSetUp());
 }
@@ -35,7 +35,10 @@ AbstractSrnModel* CorsonSrnModel::CreateSrnModel()
 
 void CorsonSrnModel::SimulateToCurrentTime()
 {
+    //Custom behaviour
     UpdateCorson();
+
+    //Run the ODE simulation as needed
     AbstractOdeSrnModel::SimulateToCurrentTime();
 }
 
@@ -49,8 +52,8 @@ void CorsonSrnModel::UpdateCorson()
     assert(mpOdeSystem != nullptr);
     assert(mpCell != nullptr);
 
-    double s = mpCell->GetCellData()->GetItem("corson signaling");
-    mpOdeSystem->SetParameter("Corson Signaling", s);
+    double s = mpCell->GetCellData()->GetItem("corson signaling"); //cell data item as "corson signaling"
+    mpOdeSystem->SetParameter("Corson Signaling", s); // pass s to Ode parameter termed as "Corson Signaling"
 }
 
 double CorsonSrnModel::GetCellStateParameter()

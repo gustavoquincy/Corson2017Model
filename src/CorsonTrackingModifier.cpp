@@ -30,17 +30,47 @@ void CorsonTrackingModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM,DIM>& rC
 }
 
 template<unsigned DIM>
+double CorsonTrackingModifier<DIM>::SigmoidalFunction(double x) const {
+    return (1 + tanh(2*x))/2;
+}
+
+template<unsigned DIM>
+double CorsonTrackingModifier<DIM>::AutoSignalingGradient(double x, double time, double width) const
+{
+    double L = mL1 * width;
+    double l = ml1 * width;
+    return mS0* SigmoidalFunction(1-time/mtau_g)*(exp(-pow(x,2)/2/pow(L,2))+exp(-pow(width-x,2)/2/pow(L,2))) +
+           SigmoidalFunction(time/mtau_g-1)*(exp(-pow(x,2)/2/pow(l,2))+exp(-pow(width-x,2)/2/pow(l,2)));
+}
+
+
+//intermediate definition for SignalingProductionFunction
+template<unsigned DIM>
+double CorsonTrackingModifier<DIM>::LigandActivityFunction(double u)  const
+{
+    return ma0 + 3*pow(u,3)/(1+pow(u,2))*ma1;
+}
+
+template<unsigned DIM>
+double CorsonTrackingModifier<DIM>::SignalProductionFunction(double u) const
+{
+    return u * LigandActivityFunction(u);
+}
+
+template<unsigned DIM>
 void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& rCellPopulation)
 {
 
     rCellPopulation.Update();
 
-    double width = rCellPopulation.GetWidth(DIM);
+    //Get cell population width
+    double width = rCellPopulation.GetWidth(0);//1
 
-    //unsure if simulationtime information can be accessed here
+    //Access simulation time by quirying SimulationTime Class
     SimulationTime* p_simulation_time = SimulationTime::Instance();
 
     double t = p_simulation_time->GetTime();
+
 
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
          cell_iter != rCellPopulation.End();
@@ -61,26 +91,27 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
 
         c_vector<double, DIM> centroid = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
 
-        //reinitialize signal received from other cells in every loop
-        double signal = 0;
+        //reinitialize signal received from other cells after every loop
+        double signal_received = 0;
 
-        for (typename AbstractCellPopulation<DIM>::Iterator
-                     cell_iter_2 = rCellPopulation.Begin();
+        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter_2 = rCellPopulation.Begin();
              cell_iter_2 != rCellPopulation.End();
              ++cell_iter_2)
         {
             c_vector<double, DIM> centroid_2 = rCellPopulation.GetLocationOfCellCentre(*cell_iter_2);
             double distance_squared = pow(centroid[0]-centroid_2[0],2) + pow(centroid[1]-centroid_2[1],2);
-            double coefficient = exp(-distance_squared/2/pow(l_over_one * width,2));
+            double coefficient = exp(-distance_squared/2/pow(ml1 * width,2));
             double this_cell_state = cell_iter_2->GetCellData()->GetItem("corson cell state");
-            signal += coefficient * SignalProductionFunction(this_cell_state);
+            signal_received += coefficient * SignalProductionFunction(this_cell_state);
         }
 
         double x = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
-        double s0 = AutoSignalingGradient(x,t) + signal;
-        cell_iter->GetCellData()->SetItem("corson signaling", s0);
+        double s = AutoSignalingGradient(x,t,width) + signal_received;
+        cell_iter->GetCellData()->SetItem("corson signaling", s);
 
     }
+
+
 }
 
 template<unsigned DIM>

@@ -5,6 +5,7 @@
 #include "CorsonOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
+
 CorsonOdeSystem::CorsonOdeSystem(std::vector<double> stateVariables)
         : AbstractOdeSystem(1)
 {
@@ -12,7 +13,7 @@ CorsonOdeSystem::CorsonOdeSystem(std::vector<double> stateVariables)
 
     SetDefaultInitialCondition(0, 1.0); // soon overwritten
 
-    this->mParameters.push_back(1.0);
+    this->mParameters.push_back(.5); //this refers to AbstactOdeSystem super class
 
     if (stateVariables != std::vector<double>())
     {
@@ -24,51 +25,18 @@ CorsonOdeSystem::~CorsonOdeSystem()
 {
 }
 
-void CorsonOdeSystem::Init()
+double CorsonOdeSystem::SigmoidalFunction(double x) const
 {
-    n = 324;
-    lambda = sqrt(1/n);
-    l_over_one = 1.75 * lambda;
-    tau = 1/2;
-    D = 5e-5;
-    a0 = 5e-2;
-    a1 = 1-a0;
-    S0 = 2;
-    L_over_one = .2;
-    tau_g = 1;
+    return (1 + tanh(2*x))/2;
 }
 
-double SigmoidalFunction(double x)
-{
-    return (1 + tanh(x))/2;
-}
-
-double AutoSignalingGradient(double time, double x, double width)
-{
-    double L = L_over_one * width;
-    double l = l_over_one * width;
-    return S0*SigmoidalFunction(1-time/tau_g)*(exp(-pow(x,2)/2/pow(L,2))+exp(-pow(width-x,2)/2/pow(L,2))) +
-            SigmoidalFunction(time/tau_g-1)*(exp(-pow(x,2)/2/pow(l,2))+exp(-pow(width-x,2)/2/pow(l,2)));
-}
-
-double LigandLevelFunction(double CellState) {
-    return CellState;
-}
-
-double LigandActivityFunction(double CellState){
-    return a0 + 3*pow(CellState,3)/(1+pow(CellState,2))*a1;
-}
-
-double SignalProductionFunction(double u){
-    return LigandLevelFunction(u)*LigandActivityFunction(u);
-}
 
 void CorsonOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
     double u = rY[0];
     double s = this->mParameters[0]; // Shorthand for "this->mParameter("Mean Delta");"
 
-    rDY[0] = (SigmoidalFunction(2*(u-s)) - u) / tau;
+    rDY[0] = (SigmoidalFunction(2*(u-s)) - u) / mtau;
 }
 
 template<>

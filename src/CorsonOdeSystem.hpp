@@ -2,8 +2,8 @@
 // Created by gq on 1/13/19.
 //
 
-#ifndef CHASTE_CORSONODESYSTEM_HPP
-#define CHASTE_CORSONODESYSTEM_HPP
+#ifndef CORSONODESYSTEM_HPP_
+#define CORSONODESYSTEM_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -13,32 +13,12 @@
 
 #include "AbstractOdeSystem.hpp"
 
-double n;
-double lambda;
-double l_over_one;
-double tau;
-double D;
-double a0;
-double a1;
-double S0;
-double L_over_one;
-double tau_g;
-
-double SigmoidalFunction(double x);
-
-double AutoSignalingGradient(double x, double time);
-
-double LigandLevelFunction(double CellState);
-
-double LigandActivityFunction(double CellState);
-
-double SignalProductionFunction(double u);
-
-
 
 class CorsonOdeSystem : public AbstractOdeSystem
 {
 private:
+
+    const double mtau = 1/2;
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -47,16 +27,17 @@ private:
         archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
     }
 
-public:
+    double SigmoidalFunction(double x) const;
 
+public:
 
     CorsonOdeSystem(std::vector<double> stateVariables=std::vector<double>());
 
     ~CorsonOdeSystem();
 
-    void Init();
-
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
+
+
 };
 
 #include "SerializationExportWrapper.hpp"
@@ -93,4 +74,4 @@ namespace boost
     }
 } // namespace ...
 
-#endif //CHASTE_CORSONODESYSTEM_HPP
+#endif //CORSONODESYSTEM_HPP_

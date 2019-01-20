@@ -2,8 +2,8 @@
 // Created by gq on 1/13/19.
 //
 
-#ifndef CHASTE_CORSONTRACKINGMODIFIER_HPP
-#define CHASTE_CORSONTRACKINGMODIFIER_HPP
+#ifndef CORSONTRACKINGMODIFIER_HPP_
+#define CORSONTRACKINGMODIFIER_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -21,7 +21,19 @@ class CorsonTrackingModifier : public AbstractCellBasedSimulationModifier<DIM,DI
     {
         archive & boost::serialization::base_object<AbstractCellBasedSimulationModifier<DIM,DIM> >(*this);
     }
+private:
 
+    const int mN = 324;
+    const double mlambda = sqrt(1/mN);
+    const double ml1 = 1.75 * mlambda;
+    const double mD = 5e-5;
+    const double ma0 = 5e-2;
+    const double ma1 = 1 - ma0;
+    const int mS0 = 2;
+    const double mL1 = .2;
+    const int mtau_g = 1;
+
+    double SigmoidalFunction(double x) const;
 
 public:
 
@@ -36,6 +48,12 @@ public:
     void UpdateCellData(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
 
     void OutputSimulationModifierParameters(out_stream& rParamsFile);
+
+    double AutoSignalingGradient(double x, double time, double width) const;
+
+    double LigandActivityFunction(double u) const;
+
+    double SignalProductionFunction(double u) const;
 };
 
 #include "SerializationExportWrapper.hpp"
