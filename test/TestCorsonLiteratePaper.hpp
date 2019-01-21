@@ -35,7 +35,7 @@
 
 
 static const double M_TIME_FOR_SIMULATION = 2; //5, 100 maybe blow up
-static const double M_TISSUE_RADIUS = 10; //15
+static const double M_TISSUE_RADIUS = 18; //15
 
 
 class TestCorsonLiteratePaper : public AbstractCellBasedWithTimingsTestSuite
