@@ -5,6 +5,23 @@
 #include "CorsonTrackingModifier.hpp"
 #include "CorsonSrnModel.hpp"
 
+static const int mN = 324;
+
+static const double mlambda = sqrt(1/mN);
+
+static const double ml1 = 1.75 * mlambda;
+
+static const double mD = 5e-5;
+
+static const double ma0 = 5e-2;
+
+static const double ma1 = 1 - ma0;
+
+static const int mS0 = 2;
+
+static const double mL1 = .2;
+
+static const int mtau_g = 1;
 
 template<unsigned DIM>
 CorsonTrackingModifier<DIM>::CorsonTrackingModifier()
@@ -68,9 +85,7 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
 
     //Access simulation time by quirying SimulationTime Class
     SimulationTime* p_simulation_time = SimulationTime::Instance();
-
     double t = p_simulation_time->GetTime();
-
 
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
          cell_iter != rCellPopulation.End();
@@ -78,17 +93,15 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
     {
         CorsonSrnModel* p_model = static_cast<CorsonSrnModel*>(cell_iter->GetSrnModel());
         double u = p_model->GetCellStateParameter();
-        double s = p_model->GetSignalingParameter();
 
-        cell_iter->GetCellData()->SetItem("corson signaling", s);
-        cell_iter->GetCellData()->SetItem("corson cell state", u);
+        cell_iter->GetCellData()->SetItem("cellstate u", u);
     }
+
 
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
          cell_iter != rCellPopulation.End();
          ++cell_iter)
     {
-
         c_vector<double, DIM> centroid = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
 
         //reinitialize signal received from other cells after every loop
@@ -99,15 +112,22 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
              ++cell_iter_2)
         {
             c_vector<double, DIM> centroid_2 = rCellPopulation.GetLocationOfCellCentre(*cell_iter_2);
-            double distance_squared = pow(centroid[0]-centroid_2[0],2) + pow(centroid[1]-centroid_2[1],2);
-            double coefficient = exp(-distance_squared/2/pow(ml1 * width,2));
-            double this_cell_state = cell_iter_2->GetCellData()->GetItem("corson cell state");
+
+            double distance_squared = pow(centroid[0]-centroid_2[0], 2) + pow(centroid[1]-centroid_2[1], 2);
+
+            double coefficient = exp(-distance_squared/2/pow(ml1*width, 2));
+
+            double this_cell_state = cell_iter_2->GetCellData()->GetItem("cellstate u");
+
             signal_received += coefficient * SignalProductionFunction(this_cell_state);
         }
 
-        double x = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
-        double s = AutoSignalingGradient(x,t,width) + signal_received;
-        cell_iter->GetCellData()->SetItem("corson signaling", s);
+        double x = centroid[0];
+
+        //incorporate autonomous varied signaling gradient and signal received from other cells
+        double s = AutoSignalingGradient(x, t, width) + signal_received;
+
+        cell_iter->GetCellData()->SetItem("signaling s", s);
 
     }
 

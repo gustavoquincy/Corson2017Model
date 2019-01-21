@@ -15,7 +15,7 @@ CellCorsonWriter<ELEMENT_DIM, SPACE_DIM>::CellCorsonWriter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double CellCorsonWriter<ELEMENT_DIM, SPACE_DIM>::GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
 {
-    double u = pCell->GetCellData()->GetItem("corson cell state");
+    double u = pCell->GetCellData()->GetItem("cellstate u");
     return u;
 }
 
@@ -37,11 +37,11 @@ void CellCorsonWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, Abstract
         *this->mpOutStream << centre_location[i] << " ";
     }
 
-    double cell_state_u = pCell->GetCellData()->GetItem("corson cell state");
+    double cell_state_u = pCell->GetCellData()->GetItem("cellstate u");
     *this->mpOutStream << cell_state_u << " ";
 
 
-    double cell_signaling_s = pCell->GetCellData()->GetItem("corson signaling");
+    double cell_signaling_s = pCell->GetCellData()->GetItem("signaling s");
     *this->mpOutStream << cell_signaling_s << " ";
 }
 
@@ -51,7 +51,6 @@ template class CellCorsonWriter<1,2>;
 template class CellCorsonWriter<2,2>;
 template class CellCorsonWriter<1,3>;
 template class CellCorsonWriter<2,3>;
-template class CellCorsonWriter<3,3>;
 
 #include "SerializationExportWrapperForCpp.hpp"
 // Declare identifier for the serializer

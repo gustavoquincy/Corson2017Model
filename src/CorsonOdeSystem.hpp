@@ -18,7 +18,6 @@ class CorsonOdeSystem : public AbstractOdeSystem
 {
 private:
 
-    const double mtau = 1/2;
 
     friend class boost::serialization::access;
     template<class Archive>

@@ -6,18 +6,21 @@
 
 CorsonSrnModel::CorsonSrnModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver) : AbstractOdeSrnModel(1, pOdeSolver)
 {
+
     if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
     {
+/*
 #ifdef CHASTE_CVODE
         mpOdeSolver = CellCycleModelOdeSolver<CorsonSrnModel, CvodeAdaptor>::Instance();
 		mpOdeSolver->Initialise();
 		mpOdeSolver->SetMaxSteps(10000);
-#else
+#else*/
         mpOdeSolver = CellCycleModelOdeSolver<CorsonSrnModel, RungeKutta4IvpOdeSolver>::Instance();
         mpOdeSolver->Initialise();
-        SetDt(0.001);
-#endif //CHASTE_CVODE
+        SetDt(0.01);
+//#endif //CHASTE_CVODE
     }
+
     assert(mpOdeSolver->IsSetUp());
 }
 
@@ -52,8 +55,8 @@ void CorsonSrnModel::UpdateCorson()
     assert(mpOdeSystem != nullptr);
     assert(mpCell != nullptr);
 
-    double s = mpCell->GetCellData()->GetItem("corson signaling"); //cell data item as "corson signaling"
-    mpOdeSystem->SetParameter("Corson Signaling", s); // pass s to Ode parameter termed as "Corson Signaling"
+    double s = mpCell->GetCellData()->GetItem("signaling s"); //cell data item
+    mpOdeSystem->SetParameter("Signal", s); // pass s to shared ptr Ode parameter
 }
 
 double CorsonSrnModel::GetCellStateParameter()
@@ -66,7 +69,7 @@ double CorsonSrnModel::GetCellStateParameter()
 double CorsonSrnModel::GetSignalingParameter()
 {
     assert(mpOdeSystem != nullptr);
-    double s = mpOdeSystem->GetParameter("Corson Signaling");
+    double s = mpOdeSystem->GetParameter("Signal");
     return s;
 }
 

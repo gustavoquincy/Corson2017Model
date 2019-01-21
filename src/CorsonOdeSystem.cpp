@@ -5,6 +5,7 @@
 #include "CorsonOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
+static const double mtau = 1/2; //1/2; make the gradient flatter
 
 CorsonOdeSystem::CorsonOdeSystem(std::vector<double> stateVariables)
         : AbstractOdeSystem(1)
@@ -13,7 +14,7 @@ CorsonOdeSystem::CorsonOdeSystem(std::vector<double> stateVariables)
 
     SetDefaultInitialCondition(0, 1.0); // soon overwritten
 
-    this->mParameters.push_back(.5); //this refers to AbstactOdeSystem super class
+    this->mParameters.push_back(0.5); //this refers to AbstactOdeSystem super class
 
     if (stateVariables != std::vector<double>())
     {
@@ -42,12 +43,12 @@ void CorsonOdeSystem::EvaluateYDerivatives(double time, const std::vector<double
 template<>
 void CellwiseOdeSystemInformation<CorsonOdeSystem>::Initialise()
 {
-    this->mVariableNames.push_back("Corson Cell State");
+    this->mVariableNames.push_back("Cell State"); // StateVariable name
     this->mVariableUnits.push_back("non-dim");
     this->mInitialConditions.push_back(0.0); // will be filled in later
 
-    this->mVariableNames.push_back("Corson Signaling");
-    this->mVariableUnits.push_back("non-dim");
+    this->mParameterNames.push_back("Signal");
+    this->mParameterUnits.push_back("non-dim");
 
     this->mInitialised = true;
 }

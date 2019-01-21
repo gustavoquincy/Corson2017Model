@@ -21,39 +21,58 @@ class CorsonTrackingModifier : public AbstractCellBasedSimulationModifier<DIM,DI
     {
         archive & boost::serialization::base_object<AbstractCellBasedSimulationModifier<DIM,DIM> >(*this);
     }
-private:
 
-    const int mN = 324;
-    const double mlambda = sqrt(1/mN);
-    const double ml1 = 1.75 * mlambda;
-    const double mD = 5e-5;
-    const double ma0 = 5e-2;
-    const double ma1 = 1 - ma0;
-    const int mS0 = 2;
-    const double mL1 = .2;
-    const int mtau_g = 1;
-
+    //Handy function to represent one term
     double SigmoidalFunction(double x) const;
 
-public:
-
-    CorsonTrackingModifier();
-
-    virtual ~CorsonTrackingModifier();
-
-    virtual void UpdateAtEndOfTimeStep(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
-
-    virtual void SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory);
-
-    void UpdateCellData(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
-
-    void OutputSimulationModifierParameters(out_stream& rParamsFile);
-
+    // eq(8), s0(xi,t)
     double AutoSignalingGradient(double x, double time, double width) const;
 
+    //eq(11) a(u), D*(u) = a(u)D(u) = a(u)u
     double LigandActivityFunction(double u) const;
 
+    //eq(10), D*(u)
     double SignalProductionFunction(double u) const;
+
+public:
+    //Default constructor
+    CorsonTrackingModifier();
+
+    //Destructor
+    virtual ~CorsonTrackingModifier();
+
+    /**
+     * Overridden UpdateAtEndOfTimeStep() method.
+     *
+     * Specifies what to do in the simulation at the end of each time step.
+     *
+     * @param rCellPopulation reference to the cell population
+     */
+    virtual void UpdateAtEndOfTimeStep(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
+
+    /**
+     * Overridden SetupSolve() method.
+     *
+     * Specifies what to do in the simulation before the start of the time loop.
+     *
+     * @param rCellPopulation reference to the cell population
+     * @param outputDirectory the output directory, relative to where Chaste output is stored
+     */
+    virtual void SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory);
+
+
+    //Helper method to compute the signal level of each cell, including the time dependent gradient
+    // and signal received from all the cells in the sheet
+    void UpdateCellData(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
+
+    /**
+    * Overridden OutputSimulationModifierParameters() method.
+    * Output any simulation modifier parameters to file.
+    *
+    * @param rParamsFile the file stream to which the parameters are output
+    */
+    void OutputSimulationModifierParameters(out_stream& rParamsFile);
+
 };
 
 #include "SerializationExportWrapper.hpp"
