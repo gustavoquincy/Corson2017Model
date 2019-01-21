@@ -11,7 +11,7 @@
 
 #include "AbstractCellBasedWithTimingsTestSuite.hpp"
 #include "CellAgesWriter.hpp"
-#include "CellDeltaNotchWriter.hpp"
+#include "CellCorsonWriter.hpp"
 #include "CellIdWriter.hpp"
 #include "CellLabel.hpp"
 #include "CellMutationStatesWriter.hpp"
@@ -34,9 +34,8 @@
 #include "PetscSetupAndFinalize.hpp"
 
 
-static const double M_TIME_FOR_SIMULATION = 5;
-static const double M_NUM_CELLS_ACROSS = 10;
-static const double M_TISSUE_RADIUS = 15;
+static const double M_TIME_FOR_SIMULATION = 2; //5, 100 maybe blow up
+static const double M_TISSUE_RADIUS = 10; //15
 
 
 class TestCorsonLiteratePaper : public AbstractCellBasedWithTimingsTestSuite
@@ -49,13 +48,11 @@ private:
 
         for (unsigned i = 0; i < num_cells; ++i)
         {
-            std::vector<double> initial_conditions;
-            initial_conditions.push_back(RandomNumberGenerator::Instance()->ranf());
-            //for the second state variable
+            //std::vector<double> initial_conditions;
             //initial_conditions.push_back(RandomNumberGenerator::Instance()->ranf());
 
             CorsonSrnModel* p_srn_model = new CorsonSrnModel();
-            p_srn_model->SetInitialConditions(initial_conditions);
+            //p_srn_model->SetInitialConditions(initial_conditions);
 
             UniformG1GenerationalCellCycleModel* p_cc_model = new UniformG1GenerationalCellCycleModel();
             p_cc_model->SetDimension(2);
@@ -76,7 +73,7 @@ private:
 public:
     void TestCorsonOdeSystem()
     {
-        HoneycombVertexMeshGenerator generator(2*M_TISSUE_RADIUS, 2.5*M_TISSUE_RADIUS);
+        HoneycombVertexMeshGenerator generator(M_TISSUE_RADIUS, M_TISSUE_RADIUS);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
         p_mesh->SetCellRearrangementThreshold(0.1);
 
@@ -87,13 +84,13 @@ public:
 
         cell_population.AddCellWriter<CellIdWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
-        //cell_population.AddCellWriter<CellCorsonWriter>();
+        cell_population.AddCellWriter<CellCorsonWriter>();
 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCorsonOdeSystem");
 
         simulator.SetDt(1.0/200.0);
-        simulator.SetSamplingTimestepMultiple(200);
+        simulator.SetSamplingTimestepMultiple(10); //200, 50
         simulator.SetEndTime(M_TIME_FOR_SIMULATION);
 
         MAKE_PTR(CorsonTrackingModifier<2>, p_modifier);
