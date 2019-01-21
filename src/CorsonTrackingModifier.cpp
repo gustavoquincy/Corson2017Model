@@ -5,11 +5,11 @@
 #include "CorsonTrackingModifier.hpp"
 #include "CorsonSrnModel.hpp"
 
-static const int mN = 324;
+//static const int mN = 324;
 
-static const double mlambda = sqrt(1/mN);
+//static const double mlambda = sqrt(1/mN);
 
-static const double ml1 = 1.75 * mlambda;
+//static const double ml1 = 1.75 * mlambda;
 
 static const double mD = 5e-5;
 
@@ -52,12 +52,12 @@ double CorsonTrackingModifier<DIM>::SigmoidalFunction(double x) const {
 }
 
 template<unsigned DIM>
-double CorsonTrackingModifier<DIM>::AutoSignalingGradient(double x, double time, double width) const
+double CorsonTrackingModifier<DIM>::AutoSignalingGradient(double x, double time, double l) const
 {
-    double L = mL1 * width;
-    double l = ml1 * width;
-    return mS0* SigmoidalFunction(1-time/mtau_g)*(exp(-pow(x,2)/2/pow(L,2))+exp(-pow(width-x,2)/2/pow(L,2))) +
-           SigmoidalFunction(time/mtau_g-1)*(exp(-pow(x,2)/2/pow(l,2))+exp(-pow(width-x,2)/2/pow(l,2)));
+    //double L = mL1 * width;
+    //double l = l1 * width;
+    return mS0* SigmoidalFunction(1-time/mtau_g)*(exp(-pow(x,2)/2/pow(mL1,2))+exp(-pow(1-x,2)/2/pow(mL1,2))) +
+           SigmoidalFunction(time/mtau_g-1)*(exp(-pow(x,2)/2/pow(l,2))+exp(-pow(1-x,2)/2/pow(l,2)));
 }
 
 
@@ -80,6 +80,12 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
 
     rCellPopulation.Update();
 
+    int N = rCellPopulation.GetNumAllCells();
+
+    double lambda = sqrt(1/N);
+
+    double l1 = 1.75 * lambda;
+
     //Get cell population width
     double width = rCellPopulation.GetWidth(0);//1
 
@@ -95,6 +101,7 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
         double u = p_model->GetCellStateParameter();
 
         cell_iter->GetCellData()->SetItem("cellstate u", u);
+
     }
 
 
@@ -113,19 +120,27 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
         {
             c_vector<double, DIM> centroid_2 = rCellPopulation.GetLocationOfCellCentre(*cell_iter_2);
 
-            double distance_squared = pow(centroid[0]-centroid_2[0], 2) + pow(centroid[1]-centroid_2[1], 2);
+            double distance_squared = pow((centroid[0]-centroid_2[0])/width, 2) + pow((centroid[1]-centroid_2[1])/width, 2);
 
-            double coefficient = exp(-distance_squared/2/pow(ml1*width, 2));
+            double coefficient;
+
+            if (distance_squared == 0)
+            {
+                coefficient = 0; //special case that cii=0
+            }
+            else{
+                coefficient = exp(-distance_squared/2/pow(l1, 2));
+            }
 
             double this_cell_state = cell_iter_2->GetCellData()->GetItem("cellstate u");
 
             signal_received += coefficient * SignalProductionFunction(this_cell_state);
         }
 
-        double x = centroid[0];
+        double x = centroid[0]/width;
 
         //incorporate autonomous varied signaling gradient and signal received from other cells
-        double s = AutoSignalingGradient(x, t, width) + signal_received;
+        double s = AutoSignalingGradient(x, t, l1);// + signal_received;
 
         cell_iter->GetCellData()->SetItem("signaling s", s);
 

@@ -45,7 +45,7 @@ void CellwiseOdeSystemInformation<CorsonOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("Cell State"); // StateVariable name
     this->mVariableUnits.push_back("non-dim");
-    this->mInitialConditions.push_back(0.0); // will be filled in later
+    this->mInitialConditions.push_back(1.0); // will be filled in later
 
     this->mParameterNames.push_back("Signal");
     this->mParameterUnits.push_back("non-dim");
