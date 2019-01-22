@@ -7,7 +7,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
-#include "AbstractCellBasedTestSuite.hpp"
+//#include "AbstractCellBasedTestSuite.hpp"
 
 #include "AbstractCellBasedWithTimingsTestSuite.hpp"
 #include "CellAgesWriter.hpp"
@@ -19,13 +19,12 @@
 #include "CorsonSrnModel.hpp"
 #include "CorsonTrackingModifier.hpp"
 
-#include "Exception.hpp"
+//#include "Exception.hpp"
 
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "NagaiHondaForce.hpp"
 #include "OffLatticeSimulation.hpp"
 
-#include "RandomCellKiller.hpp"
 #include "SmartPointers.hpp"
 #include "UniformG1GenerationalCellCycleModel.hpp"
 #include "VertexBasedCellPopulation.hpp"
@@ -34,8 +33,8 @@
 #include "PetscSetupAndFinalize.hpp"
 
 
-static const double M_TIME_FOR_SIMULATION = 2; //5, 100 maybe blow up
-static const double M_TISSUE_RADIUS = 18; //15
+static const double M_TIME_FOR_SIMULATION = 5; //5, 100 maybe blow up
+static const double M_TISSUE_RADIUS = 18; //18
 
 
 class TestCorsonLiteratePaper : public AbstractCellBasedWithTimingsTestSuite
@@ -48,14 +47,15 @@ private:
 
         for (unsigned i = 0; i < num_cells; ++i)
         {
-            //std::vector<double> initial_conditions;
-            //initial_conditions.push_back(RandomNumberGenerator::Instance()->ranf());
-
-            CorsonSrnModel* p_srn_model = new CorsonSrnModel();
-            //p_srn_model->SetInitialConditions(initial_conditions);
+            std::vector<double> initial_conditions;
+            initial_conditions.push_back(0);
 
             UniformG1GenerationalCellCycleModel* p_cc_model = new UniformG1GenerationalCellCycleModel();
             p_cc_model->SetDimension(2);
+
+            CorsonSrnModel* p_srn_model = new CorsonSrnModel();
+            //p_srn_model->Initialise();
+            p_srn_model->SetInitialConditions(initial_conditions);
 
             CellPtr p_cell(new Cell(p_state, p_cc_model, p_srn_model));
             p_cell->SetCellProliferativeType(p_prolif_type);
@@ -63,7 +63,7 @@ private:
             double birth_time = 0.0;
             p_cell->SetBirthTime(birth_time);
 
-            p_cell->InitialiseCellCycleModel();
+            //p_cell->InitialiseCellCycleModel();
             p_cell->GetCellData()->SetItem("target area", 1.0);
             rCells.push_back(p_cell);
 
@@ -89,7 +89,14 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCorsonOdeSystem");
 
-        simulator.SetDt(1.0/200.0);
+    /*
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+        TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.0, 1e-4);
+    */
+
+        simulator.SetDt(1.0/100.0); //1/200
         simulator.SetSamplingTimestepMultiple(10); //200, 50
         simulator.SetEndTime(M_TIME_FOR_SIMULATION);
 
