@@ -9,16 +9,16 @@ CorsonSrnModel::CorsonSrnModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver
 
     if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
     {
-/*
+
 #ifdef CHASTE_CVODE
         mpOdeSolver = CellCycleModelOdeSolver<CorsonSrnModel, CvodeAdaptor>::Instance();
 		mpOdeSolver->Initialise();
 		mpOdeSolver->SetMaxSteps(10000);
-#else*/
+#else
         mpOdeSolver = CellCycleModelOdeSolver<CorsonSrnModel, RungeKutta4IvpOdeSolver>::Instance();
         mpOdeSolver->Initialise();
         SetDt(0.01);
-//#endif //CHASTE_CVODE
+#endif //CHASTE_CVODE
     }
 
     assert(mpOdeSolver->IsSetUp());
@@ -63,6 +63,10 @@ double CorsonSrnModel::GetCellStateParameter()
 {
     assert(mpOdeSystem != nullptr);
     double u = mpOdeSystem->rGetStateVariables()[0];
+
+    assert(u >= 0); //fail repeatedly
+    assert(u <= 1);
+
     return u;
 }
 

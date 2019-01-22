@@ -4,7 +4,7 @@
 
 #include "CorsonTrackingModifier.hpp"
 #include "CorsonSrnModel.hpp"
-
+#include "MathsCustomFunctions.hpp"
 //static const int mN = 324;
 
 //static const double mlambda = sqrt(1/mN);
@@ -56,8 +56,8 @@ double CorsonTrackingModifier<DIM>::AutoSignalingGradient(double x, double time,
 {
     //double L = mL1 * width;
     //double l = l1 * width;
-    return mS0* SigmoidalFunction(1-time/mtau_g)*(exp(-pow(x,2)/2/pow(mL1,2))+exp(-pow(1-x,2)/2/pow(mL1,2))) +
-           SigmoidalFunction(time/mtau_g-1)*(exp(-pow(x,2)/2/pow(l,2))+exp(-pow(1-x,2)/2/pow(l,2)));
+    return mS0* SigmoidalFunction(1-time/mtau_g)*(exp(-SmallPow(x,2)/2/SmallPow(mL1,2))+exp(-SmallPow(1-x,2)/2/SmallPow(mL1,2))) +
+           SigmoidalFunction(time/mtau_g-1)*(exp(-SmallPow(x,2)/2/SmallPow(l,2))+exp(-SmallPow(1-x,2)/2/SmallPow(l,2)));
 }
 
 
@@ -65,7 +65,7 @@ double CorsonTrackingModifier<DIM>::AutoSignalingGradient(double x, double time,
 template<unsigned DIM>
 double CorsonTrackingModifier<DIM>::LigandActivityFunction(double u)  const
 {
-    return ma0 + 3*pow(u,3)/(1+pow(u,2))*ma1;
+    return ma0 + 3*SmallPow(u,3)/(1+2*u)*ma1; //Different from Eq.11
 }
 
 template<unsigned DIM>
@@ -100,6 +100,9 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
         CorsonSrnModel* p_model = static_cast<CorsonSrnModel*>(cell_iter->GetSrnModel());
         double u = p_model->GetCellStateParameter();
 
+        assert(u >= 0);
+        assert (u <= 1);
+
         cell_iter->GetCellData()->SetItem("cellstate u", u);
 
     }
@@ -120,7 +123,7 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
         {
             c_vector<double, DIM> centroid_2 = rCellPopulation.GetLocationOfCellCentre(*cell_iter_2);
 
-            double distance_squared = pow((centroid[0]-centroid_2[0])/width, 2) + pow((centroid[1]-centroid_2[1])/width, 2);
+            double distance_squared = SmallPow((centroid[0]-centroid_2[0])/width, 2) + SmallPow((centroid[1]-centroid_2[1])/width, 2);
 
             double coefficient;
 
@@ -128,19 +131,28 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
             {
                 coefficient = 0; //special case that cii=0
             }
-            else{
-                coefficient = exp(-distance_squared/2/pow(l1, 2));
+            else
+            {
+                coefficient = exp(-distance_squared/2/SmallPow(l1, 2));
             }
 
-            double this_cell_state = cell_iter_2->GetCellData()->GetItem("cellstate u");
+            double the_other_cell_u = cell_iter_2->GetCellData()->GetItem("cellstate u");
 
-            signal_received += coefficient * SignalProductionFunction(this_cell_state);
+            assert (the_other_cell_u>=0);
+            assert (the_other_cell_u<=1);
+
+            double D_aster = coefficient * SignalProductionFunction(the_other_cell_u);
+
+            assert(D_aster>=0);
+            assert(D_aster<=1);
+
+            signal_received += D_aster;
         }
 
         double x = centroid[0]/width;
 
         //incorporate autonomous varied signaling gradient and signal received from other cells
-        double s = AutoSignalingGradient(x, t, l1);// + signal_received;
+        double s = AutoSignalingGradient(x, t, l1) + signal_received;
 
         cell_iter->GetCellData()->SetItem("signaling s", s);
 
