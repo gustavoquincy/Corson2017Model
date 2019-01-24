@@ -12,8 +12,8 @@ CorsonSrnModel::CorsonSrnModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver
 
 #ifdef CHASTE_CVODE
         mpOdeSolver = CellCycleModelOdeSolver<CorsonSrnModel, CvodeAdaptor>::Instance();
-		mpOdeSolver->Initialise();
-		mpOdeSolver->SetMaxSteps(10000);
+        mpOdeSolver->Initialise();
+        mpOdeSolver->SetMaxSteps(10000);
 #else
         mpOdeSolver = CellCycleModelOdeSolver<CorsonSrnModel, RungeKutta4IvpOdeSolver>::Instance();
         mpOdeSolver->Initialise();

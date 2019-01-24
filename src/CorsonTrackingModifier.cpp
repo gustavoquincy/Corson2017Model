@@ -65,13 +65,13 @@ double CorsonTrackingModifier<DIM>::AutoSignalingGradient(double x, double time,
 template<unsigned DIM>
 double CorsonTrackingModifier<DIM>::LigandActivityFunction(double u)  const
 {
-    return ma0 + 3*SmallPow(u,3)/(1+2*u)*ma1; //Different from Eq.11
+    return ma0 + 3*SmallPow(u,3)/(1+ 2*u)*ma1; //Different from Eq.11
 }
 
 template<unsigned DIM>
 double CorsonTrackingModifier<DIM>::SignalProductionFunction(double u) const
 {
-    return u * LigandActivityFunction(u);
+    return 0.1*u;// * LigandActivityFunction(u);
 }
 
 template<unsigned DIM>
@@ -84,7 +84,7 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
 
     double lambda = sqrt(1/N);
 
-    double l1 = 1.75 * lambda;
+    double l1 = 1.25 * lambda; //1.75
 
     //Get cell population width
     double width = rCellPopulation.GetWidth(0);//1
@@ -98,10 +98,8 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
          ++cell_iter)
     {
         CorsonSrnModel* p_model = static_cast<CorsonSrnModel*>(cell_iter->GetSrnModel());
-        double u = p_model->GetCellStateParameter();
 
-        assert(u >= 0);
-        assert (u <= 1);
+        double u = p_model->GetCellStateParameter();
 
         cell_iter->GetCellData()->SetItem("cellstate u", u);
 
@@ -138,21 +136,14 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
 
             double the_other_cell_u = cell_iter_2->GetCellData()->GetItem("cellstate u");
 
-            assert (the_other_cell_u>=0);
-            assert (the_other_cell_u<=1);
+            signal_received += coefficient * SignalProductionFunction(the_other_cell_u);
 
-            double D_aster = coefficient * SignalProductionFunction(the_other_cell_u);
-
-            assert(D_aster>=0);
-            assert(D_aster<=1);
-
-            signal_received += D_aster;
         }
 
         double x = centroid[0]/width;
 
         //incorporate autonomous varied signaling gradient and signal received from other cells
-        double s = AutoSignalingGradient(x, t, l1) + signal_received;
+        double s =  signal_received + AutoSignalingGradient(x, t, l1);
 
         cell_iter->GetCellData()->SetItem("signaling s", s);
 
