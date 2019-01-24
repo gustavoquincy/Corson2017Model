@@ -1,9 +1,10 @@
 //
-// Created by gq on 1/14/19.
+// Created by gq on 1/22/19.
 //
 
-#ifndef TESTDELTANOTCHLITERATEPAPER_HPP_
-#define TESTDELTANOTCHLITERATEPAPER_HPP_
+#ifndef CHASTE_CORSONPAPER_HPP
+#define CHASTE_CORSONPAPER_HPP
+
 
 #include <cxxtest/TestSuite.h>
 #include <properties/proliferative_types/DifferentiatedCellProliferativeType.hpp>
@@ -31,13 +32,11 @@
 #include "VertexBasedCellPopulation.hpp"
 #include "WildTypeCellMutationState.hpp"
 
-#include "CellBasedEventHandler.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
 
 
-static const double M_TIME_FOR_SIMULATION = 4; //5
-static const double M_TISSUE_RADIUS = 10; //18
+static const double M_TIME_FOR_SIMULATION = 3; //5
+static const double M_TISSUE_RADIUS = 18; //18
 
 
 class TestCorsonLiteratePaper : public AbstractCellBasedWithTimingsTestSuite
@@ -51,8 +50,7 @@ private:
         for (unsigned i = 0; i < num_cells; ++i)
         {
             std::vector<double> initial_conditions;
-            //RandomNumberGenerator::Instance()->ranf()
-            initial_conditions.push_back(0.0);
+            initial_conditions.push_back(0);
 
             UniformG1GenerationalCellCycleModel* p_cc_model = new UniformG1GenerationalCellCycleModel();
             p_cc_model->SetDimension(2);
@@ -77,11 +75,8 @@ private:
 public:
     void TestCorsonOdeSystem()
     {
-        SimulationTime::Instance()->Destroy();
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        HoneycombVertexMeshGenerator generator(M_TISSUE_RADIUS, M_TISSUE_RADIUS);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        CylindricalHoneycombVertexMeshGenerator generator(M_TISSUE_RADIUS, M_TISSUE_RADIUS);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetCylindricalMesh();
         p_mesh->SetCellRearrangementThreshold(0.1);
 
         std::vector<CellPtr> cells;
@@ -96,16 +91,15 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCorsonOdeSystem");
 
-    /*
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
-        TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.0, 1e-4);
-    */
+        /*
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.0, 1e-4);
+        */
 
-
-        simulator.SetDt(1.0/200.0); //1/200
-        //simulator.SetSamplingTimestepMultiple(10); //200, 50
+        simulator.SetDt(1.0/100.0); //1/200
+        simulator.SetSamplingTimestepMultiple(10); //200, 50
         simulator.SetEndTime(M_TIME_FOR_SIMULATION);
 
         MAKE_PTR(CorsonTrackingModifier<2>, p_modifier);
@@ -118,12 +112,10 @@ public:
         p_force->SetNagaiHondaCellBoundaryAdhesionEnergyParameter(10.0);
         simulator.AddForce(p_force);
 
-        CellBasedEventHandler::Reset();
         simulator.Solve();
-        CellBasedEventHandler::Headings();
-        CellBasedEventHandler::Report();
     }
 };
 
 
-#endif //TESTDELTANOTCHLITERATEPAPER_HPP_
+
+#endif //CHASTE_CORSONPAPER_HPP
