@@ -36,8 +36,8 @@
 #include "PetscSetupAndFinalize.hpp"
 
 
-static const double M_TIME_FOR_SIMULATION = 4; //5
-static const double M_TISSUE_RADIUS = 10; //18
+static const double M_TIME_FOR_SIMULATION = 6; //5
+static const double M_TISSUE_RADIUS = 18; //18
 
 
 class TestCorsonLiteratePaper : public AbstractCellBasedWithTimingsTestSuite
@@ -52,7 +52,7 @@ private:
         {
             std::vector<double> initial_conditions;
             //RandomNumberGenerator::Instance()->ranf()
-            initial_conditions.push_back(0.0);
+            initial_conditions.push_back(0.01);
 
             UniformG1GenerationalCellCycleModel* p_cc_model = new UniformG1GenerationalCellCycleModel();
             p_cc_model->SetDimension(2);
@@ -102,7 +102,6 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
         TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.0, 1e-4);
     */
-
 
         simulator.SetDt(1.0/200.0); //1/200
         //simulator.SetSamplingTimestepMultiple(10); //200, 50
