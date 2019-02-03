@@ -5,6 +5,7 @@
 #include "CorsonTrackingModifier.hpp"
 #include "CorsonSrnModel.hpp"
 #include "MathsCustomFunctions.hpp"
+#include "Debug.hpp"
 //static const int mN = 324;
 
 //static const double mlambda = sqrt(1/mN);
@@ -71,7 +72,9 @@ double CorsonTrackingModifier<DIM>::LigandActivityFunction(double u)  const
 template<unsigned DIM>
 double CorsonTrackingModifier<DIM>::SignalProductionFunction(double u) const
 {
-    return 0.1*u;// * LigandActivityFunction(u);
+    //double uc = 0.4;
+    //int k = 50;
+    return u * LigandActivityFunction(u); //SigmoidalFunction(k*(u-uc));
 }
 
 template<unsigned DIM>
@@ -80,11 +83,12 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
 
     rCellPopulation.Update();
 
-    int N = rCellPopulation.GetNumAllCells();
+    double N = rCellPopulation.GetNumAllCells();
 
     double lambda = sqrt(1/N);
 
-    double l1 = 1.25 * lambda; //1.75
+    double l1 = 1.75 * lambda; //1.75
+
 
     //Get cell population width
     double width = rCellPopulation.GetWidth(0);//1
@@ -100,18 +104,15 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
         CorsonSrnModel* p_model = static_cast<CorsonSrnModel*>(cell_iter->GetSrnModel());
 
         double u = p_model->GetCellStateParameter();
-
+        assert(u != 0);
         cell_iter->GetCellData()->SetItem("cellstate u", u);
-
     }
-
 
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
          cell_iter != rCellPopulation.End();
          ++cell_iter)
     {
-        c_vector<double, DIM> centroid = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
-
+        c_vector<double, DIM> centroid = rCellPopulation.GetLocationOfCellCentre(*cell_iter);;
         //reinitialize signal received from other cells after every loop
         double signal_received = 0;
 
@@ -120,36 +121,31 @@ void CorsonTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>
              ++cell_iter_2)
         {
             c_vector<double, DIM> centroid_2 = rCellPopulation.GetLocationOfCellCentre(*cell_iter_2);
-
-            double distance_squared = SmallPow((centroid[0]-centroid_2[0])/width, 2) + SmallPow((centroid[1]-centroid_2[1])/width, 2);
-
+            double distance = norm_2(centroid - centroid_2);
+            //double distance_squared = SmallPow((centroid[0]-centroid_2[0])/width, 2) + SmallPow((centroid[1]-centroid_2[1])/width, 2);
             double coefficient;
-
-            if (distance_squared == 0)
+            if (distance != 0)
             {
-                coefficient = 0; //special case that cii=0
+                coefficient = exp(-SmallPow(distance/width, 2)/SmallPow(l1, 2)/2);
             }
             else
             {
-                coefficient = exp(-distance_squared/2/SmallPow(l1, 2));
+                coefficient = 0; //special case that cii=0
             }
-
             double the_other_cell_u = cell_iter_2->GetCellData()->GetItem("cellstate u");
-
-            signal_received += coefficient * SignalProductionFunction(the_other_cell_u);
-
+            signal_received += coefficient * SignalProductionFunction(the_other_cell_u);; //amplified by the factor of 10
         }
-
         double x = centroid[0]/width;
+        assert(signal_received != 0);
 
-        //incorporate autonomous varied signaling gradient and signal received from other cells
-        double s =  signal_received + AutoSignalingGradient(x, t, l1);
-
+        //incorporate autonomous signaling gradient and signal received from other cells
+        double s =  signal_received + AutoSignalingGradient(x, t, l1); //amplified by 10 here
+        /*
+         *
+         * I guess here signal_received
+         * equals 0*/
         cell_iter->GetCellData()->SetItem("signaling s", s);
-
     }
-
-
 }
 
 template<unsigned DIM>

@@ -7,6 +7,7 @@
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include <cmath>
 #include "AbstractCellBasedSimulationModifier.hpp"

@@ -11,7 +11,7 @@ CorsonOdeSystem::CorsonOdeSystem(std::vector<double> stateVariables) : AbstractO
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<CorsonOdeSystem>);
 
     //this->mStateVariables.push_back(1.0);
-    SetDefaultInitialCondition(0, 0.0); // soon overwritten
+    SetDefaultInitialCondition(0, 0.01); // soon overwritten
 
     this->mParameters.push_back(0.2); //this refers to AbstactOdeSystem super class
 
@@ -38,7 +38,7 @@ void CorsonOdeSystem::EvaluateYDerivatives(double time, const std::vector<double
     double u = rY[0];
     double s = this->mParameters[0]; // Shorthand for "this->mParameter("Mean Delta");"
 
-    rDY[0] = (SigmoidalFunction(2*(s)) - u) * 2;
+    rDY[0] = (SigmoidalFunction(2*(u-s)) - u) * 2;
 }
 
 template<>
@@ -46,7 +46,7 @@ void CellwiseOdeSystemInformation<CorsonOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("Cell State"); // StateVariable name
     this->mVariableUnits.push_back("non-dim");
-    this->mInitialConditions.push_back(0.0); // will be filled in later
+    this->mInitialConditions.push_back(0.01); // will be filled in later
 
     this->mParameterNames.push_back("Signal");
     this->mParameterUnits.push_back("non-dim");
