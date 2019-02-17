@@ -2,4 +2,5 @@ TestHello.hpp
 TestCorsonLiteratePaper.hpp
 TestDeltaNotchSimulation.hpp
 TestCreatingAndUsingCorsonSrnModel.hpp
-CorsonPaper.hpp
+TestDifferentialAdhesionForce.hpp
+TestCorsonWithDifferentialNagaiForce.hpp
