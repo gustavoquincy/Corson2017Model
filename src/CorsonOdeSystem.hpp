@@ -24,9 +24,18 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
+        archive & mTimeScaleParameter;
     }
 
     double SigmoidalFunction(double x) const;
+
+protected:
+
+    /*
+     * The time scale parameter tau in Corson ode system, i.e., tau*du/dt = f(u,s)-u+eta(t)
+     * */
+    double mTimeScaleParameter = 1;
+
 
 public:
 
@@ -36,6 +45,15 @@ public:
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
 
+    /*
+     * set mTimeScaleParameter
+     * */
+    void SetTimeScaleParameter(double timeScaleParameter);
+
+    /*
+     * @return mTimeScaleParameter
+     * */
+    double GetTimeScaleParameter();
 
 };
 

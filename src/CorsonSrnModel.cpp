@@ -64,18 +64,13 @@ double CorsonSrnModel::GetCellStateParameter()
     assert(mpOdeSystem != nullptr);
     double u = mpOdeSystem->rGetStateVariables()[0];
 
-    assert(u >= 0); //fail repeatedly
+    assert(u >= 0);
     assert(u <= 1);
 
     return u;
 }
 
-double CorsonSrnModel::GetSignalingParameter()
-{
-    assert(mpOdeSystem != nullptr);
-    double s = mpOdeSystem->GetParameter("Signal");
-    return s;
-}
+
 
 void CorsonSrnModel::OutputSrnModelParameters(out_stream& rParamsFile)
 {

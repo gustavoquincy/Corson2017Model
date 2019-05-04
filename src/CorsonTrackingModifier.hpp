@@ -36,6 +36,12 @@ class CorsonTrackingModifier : public AbstractCellBasedSimulationModifier<DIM,DI
     //eq(10), D*(u)
     double SignalProductionFunction(double u) const;
 
+    double TargetAreaControllingFunction(double u) const;
+
+protected:
+
+    double mSignalingRangeParameter;
+
 public:
     //Default constructor
     CorsonTrackingModifier();

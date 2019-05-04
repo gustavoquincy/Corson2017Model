@@ -10,10 +10,9 @@ CorsonOdeSystem::CorsonOdeSystem(std::vector<double> stateVariables) : AbstractO
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<CorsonOdeSystem>);
 
-    //this->mStateVariables.push_back(1.0);
-    SetDefaultInitialCondition(0, 0.01); // soon overwritten
+    SetDefaultInitialCondition(0, 0.00); // soon overwritten
 
-    this->mParameters.push_back(0.2); //this refers to AbstactOdeSystem super class
+    this->mParameters.push_back(0.0); //
 
     if (stateVariables != std::vector<double>())
     {
@@ -31,25 +30,35 @@ double CorsonOdeSystem::SigmoidalFunction(double x) const
     return (1 + tanh(2*x))/2;
 }
 
+void CorsonOdeSystem::SetTimeScaleParameter(double timeScaleParameter) {
+    mTimeScaleParameter = timeScaleParameter;
+}
+
+double CorsonOdeSystem::GetTimeScaleParameter() {
+    return mTimeScaleParameter;
+}
+
 void CorsonOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
 
-
+    double tau = GetTimeScaleParameter();
     double u = rY[0];
-    double s = this->mParameters[0]; // Shorthand for "this->mParameter("Mean Delta");"
+    double s = this->mParameters[0];
 
-    rDY[0] = (SigmoidalFunction(2*(u-s)) - u) * 2;
+
+    rDY[0] = (SigmoidalFunction(2*(u-s)) - u) / tau ; //tau=.5 i.e. 1/.5=2, here set 1/tau = 10 for faster pattern resolution
 }
 
 template<>
 void CellwiseOdeSystemInformation<CorsonOdeSystem>::Initialise()
 {
-    this->mVariableNames.push_back("Cell State"); // StateVariable name
+    this->mVariableNames.push_back("Cell State");
     this->mVariableUnits.push_back("non-dim");
-    this->mInitialConditions.push_back(0.01); // will be filled in later
+    this->mInitialConditions.push_back(0.00);
 
     this->mParameterNames.push_back("Signal");
     this->mParameterUnits.push_back("non-dim");
+    //Initial value is not needed since s will be calculated in CorsonTrackingModifier
 
     this->mInitialised = true;
 }

@@ -38,8 +38,6 @@ public:
 
     double GetCellStateParameter();
 
-    double GetSignalingParameter();
-
     void OutputSrnModelParameters(out_stream& rParamsFile);
 };
 
