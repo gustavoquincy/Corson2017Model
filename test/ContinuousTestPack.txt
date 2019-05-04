@@ -4,3 +4,5 @@ TestDeltaNotchSimulation.hpp
 TestCreatingAndUsingCorsonSrnModel.hpp
 TestDifferentialAdhesionForce.hpp
 TestCorsonWithDifferentialNagaiForce.hpp
+TestCorsonWithFarhadifarForce.hpp
+TestDeltaNotchWithFarhadifarForce.hpp
