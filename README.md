@@ -10,4 +10,4 @@
 
 ![test2](./visualizations/test2.gif)
 ![test3](./visualizations/test3.gif)
-![Delta Notch signaling without cellular division](static_ND_1.gif)
+![Delta Notch signaling without cellular division](./visualizations/static_ND_1.gif)
