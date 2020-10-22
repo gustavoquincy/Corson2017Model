@@ -5,3 +5,9 @@
 - **src** folder includes the codes for simulating **Equations 4-12** given in this [paper](http://science.sciencemag.org/content/356/6337/eaai7407/tab-pdf)
 
 - [Chaste repository](https://github.com/Chaste/Chaste)
+
+- Some visualzations shown in Paraview and converted into GIF
+
+![test2](./visualizations/test2.gif)
+![test3](./visualizations/test3.gif)
+![Delta Notch signaling without cellular division](static_ND_1.gif)
